@@ -1,8 +1,7 @@
-
+# Dependent Libraries
 import numpy as np
 import sympy as sp
 import matplotlib.pyplot as plt
-from sympy.simplify.simplify import simplify
 
 """
 Briad Word Style:
@@ -12,6 +11,12 @@ just have them as integers...
 Can write a method to communicate with sage if needed
 
 """
+
+__all__ = [
+    "Braid",
+    "Braid_Kernel"
+]
+
 
 class Braid():
     """
@@ -162,7 +167,7 @@ class Braid():
 
 
 ## Braid Kernel ##
-class Braid_Kernal(Braid):
+class Braid_Kernel(Braid):
     """
     This is a sub class of braid and provides the framework to
     """
@@ -256,21 +261,16 @@ class Braid_Kernal(Braid):
                     burau[row, row - 1] = 1
                 burau[row, row] = -label**-1
                 burau[row, row + 1] = label**-1
-            
-            sp.pprint(burau)
-            print("\n")
 
             # Mulitply each time
             mat = mat*burau
-        
-        sp.pprint(mat.applyfunc(simplify))
-        print("\n")
 
         # Delete last row and column
         mat.row_del(self.braid_group - 1)
         mat.col_del(self.braid_group - 1)
 
-        sp.pprint(mat.applyfunc(simplify))
+        # Prints Reduced Burau
+        sp.pprint(mat.applyfunc(sp.simplify))
 
         return mat
     
@@ -295,7 +295,8 @@ class Braid_Kernal(Braid):
         M = sp.Matrix([M[:r, :], M[r+1:n-1:2, :], M[n-1:, :]])
 
         print("\n")
-        sp.pprint(M.applyfunc(simplify))
+        # Prints Modifed Red-Burau
+        sp.pprint(M.applyfunc(sp.simplify))
         print("\n")
         # print(M.det())
         return M.det()
@@ -303,21 +304,35 @@ class Braid_Kernal(Braid):
     def alexander_data(self):
         """
         """
+        # Gets Alexander Poly. / determinant
         det = self.alexander_polynomial()
-        det_simp = sp.simplify(det)
-        sp.pprint(det_simp)
+        det = sp.simplify(det)
+        sp.pprint(det)
 
         x = sp.symbols("x")
         y = sp.symbols("y")
-        for i in det_simp.free_symbols:
+
+        # LINKING NUMBERS --> ai = lk(ti, X) and bi = lk(ti, Y)
+        # we need the number of components which we have below in the substitutuion step.
+        n = self.braid_group
+        k = self.caps
+        r = n - 2*k
+
+        
+
+
+        U = 1
+        V = 1
+        for i in det.free_symbols:
             if i != x and i != y:
                 t = sp.symbols(str(i))
                 s = sp.symbols("s" + str(i)[-1])
-                det_simp = det_simp.subs(t, s**2)
+                det = det.subs(t, s**2)
         
-        sp.pprint(det_simp)
+        # PRINTS ALEX POLY with subbed si
+        sp.pprint(det)
         # This works at leat for this specific det but the method is GREEDY.
-        sp.pprint(sp.collect(det_simp, [x**2*y**2, x**2*y, x*y**2, x*y, x, y]))
+        # sp.pprint(sp.collect(det, [x**2*y**2, x**2*y, x*y**2, x*y, x, y]))
 
 
     def draw(self, style = "ext", linewidth = 3, gap_size = 5, color = "rainbow", save = False):
@@ -447,12 +462,12 @@ class Braid_Kernal(Braid):
         else:
             plt.show()
 
-# test = Braid(5, 3, 2, 2, -4, -1, -1, -2, -3, -4)
-# test.draw()
-# alex_poly(test, 1)
 
-new = Braid_Kernal(5, 1, 3, 2, 2, -4, -1, -1, -2, -3, -4)
-new.draw()
-# new.alexander_polynomial()
-new.alexander_data()
-# print(new)
+if __name__ == "__main__":
+
+    # new = Braid(5, 3, 2, 2, -4, -1, -1, -2, -3, -4)   
+    new = Braid_Kernel(5, 1, 3, 2, 2, -4, -1, -1, -2, -3, -4)
+    new.draw()
+    # new.alexander_polynomial()
+    new.alexander_data()
+    # print(new)
