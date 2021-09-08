@@ -38,4 +38,7 @@ very simply using Pip:
 ```
 pip install git+https://github.com/RexGreenway/polylatlib
 ```
-
+To start using Alexander Data you can import the library as follows:
+```
+import alexdata as ad
+```
