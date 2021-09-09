@@ -1,16 +1,24 @@
+"""
+AlexanderData Library
+=====================
+Created in progress toward completion of COMP702 - Dissertation
+Module, MA Data Science and Artificial Intelligence @ University
+of Liverpool.
+
+This library was written for the purpose of calculating the 
+Alexander Data, an invariant for textiles. To achieve this goal
+this package allows for the creation of Braid objects - 
+specifically the Braid Kernel, a representation of repeating
+textile structures. From this object the user can calculate the
+entire Alexander Data, or each of the internel stages piece-meal.
+
+"""
+
 # Dependent Libraries
 import numpy as np
 import sympy as sp
 import matplotlib.pyplot as plt
 
-"""
-Briad Word Style:
-just have them as integers...
-    s1, s2, s3, = 1, 2, 3
-
-Can write a method to communicate with sage if needed
-
-"""
 
 __all__ = [
     "Braid",
@@ -20,14 +28,29 @@ __all__ = [
 
 class Braid():
     """
+    Braid class object with internel starnd tracking and drawing
+    functionality.
+
+    Attributes
+    ----------
+    braid_group : int
+        The number of strands in the braid.
+    braid_word : list
+        Sequence of Artin operators that define the braid 
+        (Negative values indicate undercrossing strands).
+    
+    undercrossing_labels : list
+        List of underscrossing strands' labels for each 
+        Artin operation repectively.
+    
+    Notes
+    -----
+    abcd
     """
     def __init__(self, n, *ops):
         """
-        braid_group is the number of strands in braid.
-        briad_word is the list of artin opertaors as integers.
-        undercrossing_labels is the list of UNDERCROSSING strands at each operation
-        top_labels is n-length list of final strand positions (AT TOP)
-        bot_labels is n-length list of initial strand positions (AT BOTTOM)
+        Initialises the Braid class object, including calling
+        the internal tracking function to generate strand positions.
         """
         # Establish Group/No. of Strands
         self.braid_group = n
@@ -41,13 +64,34 @@ class Braid():
             # Build braid word
             self.braid_word.append(i)
 
-        self.undercrossing_labels = self.track_strands()
+        self.undercrossing_labels = self._track_strands()
 
-    def track_strands(self):
+    def _track_strands(self):
         """
-        Tracks starnd positions through the braid itself
+        Protected Method
+        Tracks starnd positions through the given braid.
 
-        This calculates the labels of the strands when labelled from the 'bottom' of the braid up.
+        top_labels : list
+            List of 'briad_group' length, indicating strand
+            names / labels present at the start, or 'top', 
+            of the braid. (Tracked internally from sequence
+            of operations)
+        bot_labels : list
+            List of 'briad_group' length, indicating strand
+            names / labels present at the end, or 'bottom',
+            of the Briad. (Default [1, 2, ..., n])
+
+        Returns
+        -------
+        undercrossing_labels : list
+            List of underscrossing strands' labels for each 
+            Artin operation repectively.
+
+        Notes
+        -----
+        This calculates the labels of the strands when labelled from the
+        'bottom' of the braid up as is the set convention for labelling
+        used by Professor Morton in his work.
         """
         # Initial Positions (AT BOTTOM)
         label_positions = [i + 1 for i in range(self.braid_group)]
@@ -73,20 +117,34 @@ class Braid():
 
     def draw(self, style = "comp", linewidth = 3, gap_size = 3, color = "rainbow", save = False):
         """
-        Uses MatPLotLib to draw a braid.
+        Draws the Braid as a MatpLotlib figure. 
 
+        Parameters
+        ----------
         style : "comp" or "ext"
-        linewidth : int
-        gap_size : int
-        color : "rainbow" or all fixed colour from 
-            'b' as blue
-            'g' as green
-            'r' as red
-            'c' as cyan
-            'm' as magenta
-            'y' as yellow
-            'k' as black
-            'w' as white
+            "comp" renders the image of the braid in a compact style
+            with crossings parallel to one another if possible. "ext",
+            for extended, shows the crossings in series.
+        linewidth : int (Default = 3)
+            Thickness of the strands in the figure.
+        gap_size : int (Default = 3)
+            Amount of space shown at crossings for undercrossing strands.
+        color : str
+            Multicolor strands defined by "rainbow". Single fixed colour
+            for all strands can be chosen from:
+                {'b': blue,
+                'g': green,
+                'r': red,
+                'c': cyan,
+                'm': magenta,
+                'y': yellow,
+                'k': black,
+                'w': white}
+
+        Notes
+        -----
+        abcd
+
         """
         n = self.braid_group
         braid = self.braid_word
@@ -161,7 +219,7 @@ class Braid():
 
     def __str__(self):
         """
-        Have this return with s's as the sigmas....
+        Returns descriptive information about the Braid object.
         """
         return f"Braid: {self.braid_word}\nLabels: {self.undercrossing_labels}"
 
@@ -169,10 +227,26 @@ class Braid():
 ## Braid Kernel ##
 class Braid_Kernel(Braid):
     """
-    This is a sub class of braid and provides the framework to
+    Braid Kernel class object for the creation of braid-based kernels
+    and the subsequent calculation of the Alexander Data.
+
+    Attributes
+    ----------
+    (See parent class of Braid for braid specific attributes.)
+
+    eq : list[list]
+        List of equivalence classes for strand labels, detailing the
+        strands that connect to one another through loops of the Kernel.
+
+    Notes
+    -----
+    abcd
+
     """
     def __init__(self, n, k, *ops):
         """
+        Initialises the Braid_Kernel class object with internal strand
+        tracking through the braid and around the loops of teh Kernel. 
         """
         # Check Valid k input:
         if k > n / 2:
@@ -180,12 +254,27 @@ class Braid_Kernel(Braid):
         self.caps = k
         super().__init__(n, *ops)
 
-    def track_strands(self):
+    def _track_strands(self):
         """
-        first calls super() method to track braid labels
-        then works out which strands are the same around the kernal.
+        Protected Method
+        Tracks strand positions through the braid and the loops of the
+        braid-based Kernel.
+
+        Returns
+        -------
+        label_list : list
+            Adjusted list of undercrossing strands accounting for
+            equivalences aross Kernel loops and caps.
+
+        Notes
+        -----
+        This method first calls the parent method of track strands to
+        establish crossing specific strand movement before accounting
+        for Kernel loops and caps.
+        
         """
-        label_list = super().track_strands()
+        # Call parent label tracking method for undercrossing labels in braid.
+        label_list = super()._track_strands()
 
         n = self.braid_group
         k = self.caps
@@ -197,19 +286,25 @@ class Braid_Kernel(Braid):
             same = []
             looped = False
             bot_list = True
+            direction = +1
             while i not in visited or bot_list == False:
                 if bot_list:
-                    same.append(i + 1)
+                    # Append to same: strand label and direction tuple.
+                    same.append((i + 1, direction))
                     visited.append(i)
-
+                
                 # If we have done a cap or round the back
                 if not looped:
+                    # Loops
                     if i < n - 2 * k:
                         bot_list = not bot_list
+                    # Caps
                     elif n % 2 == i % 2:
                         i += 1
+                        direction = -direction
                     elif n % 2 != i % 2:
                         i -= 1
+                        direction = -direction
                     looped = True
 
                 # Straight Across
@@ -226,13 +321,32 @@ class Braid_Kernel(Braid):
 
         # Using establlished above equivalences to relabel label list
         for l in eq:
-            label_list = [l[0] if x in l else x for x in label_list]
+            label_list = [l[0][0] if x in [k[0] for k in l] else x for x in label_list]
 
         self.eq = eq
         return label_list
 
-    def reduced_burau(self):
+    def reduced_burau(self, print_result = True):
         """
+        Produces the Reduced Burau Matrix for the Braid_Kernel object.
+
+        Parameters
+        ----------
+        print_result : boolean (Default = True)
+            Prints the final result of this method. Defaulted as True
+            so as to be shown if mthod called individually.
+
+        Returns
+        -------
+        mat : SymPy Matrix
+            The reduced Burau Matrix of the current Briad_Kernel object.
+
+        Notes
+        -----
+        This method performs the substitution of the first strand "t1" with
+        "y" in line with the Kernel. This means that all fabric specific
+        strands within this code are shown as "t2" onwards. 
+
         """
         mat = sp.eye(self.braid_group)
         label_list = self.undercrossing_labels
@@ -270,15 +384,34 @@ class Braid_Kernel(Braid):
         mat.col_del(self.braid_group - 1)
 
         # Prints Reduced Burau
-        sp.pprint(mat.applyfunc(sp.simplify))
+        if print_result:
+            sp.pprint(mat.applyfunc(sp.simplify))
 
         return mat
     
-    def alexander_polynomial(self):
+    def alexander_polynomial(self, print_result = True):
         """
+        Produces the Alexander polynomial for the Braid_Kernel
+
+        Parameters
+        ----------
+        print_result : boolean (Default = True)
+            Prints the final result of this method. Defaulted as True
+            so as to be shown if mthod called individually.
+
+        Returns
+        -------
+        det : SymPy Equation
+            Determinant of the Briad Kernel in terms of "x", "y", and
+            strands "t?".
+
+        Notes
+        -----
+        abcd
+
         """
 
-        M = self.reduced_burau()
+        M = self.reduced_burau(print_result = False)
 
         n = self.braid_group
         k = self.caps
@@ -294,35 +427,75 @@ class Braid_Kernel(Braid):
         # remove rows
         M = sp.Matrix([M[:r, :], M[r+1:n-1:2, :], M[n-1:, :]])
 
-        print("\n")
-        # Prints Modifed Red-Burau
-        sp.pprint(M.applyfunc(sp.simplify))
-        print("\n")
-        # print(M.det())
+        # Prints modified red-burau Determinant
+        if print_result:
+            print(M.det())
+
         return M.det()
     
-    def alexander_data(self):
+    def alexander_data(self, print_result = True):
         """
+        Produces the Alexander Data of the Braid_Kernel.
+
+        Parameters
+        ----------
+        print_result : boolean (Default = True)
+            Prints the final result of this method. Defaulted as True
+            so as to be shown if mthod called individually.
+        
+        Returns
+        -------
+
+        Notes
+        -----
+
         """
         # Gets Alexander Poly. / determinant
-        det = self.alexander_polynomial()
+        det = self.alexander_polynomial(print_result = False)
         det = sp.simplify(det)
-        sp.pprint(det)
 
         x = sp.symbols("x")
         y = sp.symbols("y")
 
-        # LINKING NUMBERS --> ai = lk(ti, X) and bi = lk(ti, Y)
-        # we need the number of components which we have below in the substitutuion step.
         n = self.braid_group
         k = self.caps
         r = n - 2*k
 
-        
+        U = y
+        V = x
 
+        # Finding linking no.s and constructing U and V
+        # finds strands that cross the y strand
+        strands = []
+        prev = 0
+        for index, op in enumerate(self.braid_word):
+            if op == -1 and prev == -1:
+                # grab strand from undercrossing labels
+                strands.append(self.undercrossing_labels[index])
+            prev = op
 
-        U = 1
-        V = 1
+        for i, g in enumerate(self.eq):
+            # skip y strand
+            if g[0][0] == 1:
+                continue
+            a = 0
+            b = 0
+            for s in g:
+                # If NOT capped part then add up directions. A
+                if s[0] <= r:
+                    a += s[1]
+                # If crossing y strand.
+                if s[0] in strands:
+                    b += s[1]
+
+            s = sp.symbols("s" + str(i + 1))
+            U *= s**a
+            V *= s**b
+
+        print("U: ", U)
+        print("V: ", V)
+
+        # Subbing t for s^2.
         for i in det.free_symbols:
             if i != x and i != y:
                 t = sp.symbols(str(i))
@@ -330,26 +503,42 @@ class Braid_Kernel(Braid):
                 det = det.subs(t, s**2)
         
         # PRINTS ALEX POLY with subbed si
-        sp.pprint(det)
+        # sp.pprint(det)
         # This works at leat for this specific det but the method is GREEDY.
         # sp.pprint(sp.collect(det, [x**2*y**2, x**2*y, x*y**2, x*y, x, y]))
 
+        return
 
     def draw(self, style = "ext", linewidth = 3, gap_size = 5, color = "rainbow", save = False):
         """
-        Use MatPLotLib? or Bokeh? to draw a braid.
+        Draws the Braid_Kernel as a MatpLotlib figure. 
+
+        Parameters
+        ----------
         style : "comp" or "ext"
-        linewidth : int
-        gap_size : int
-        color : 
-            'b' as blue
-            'g' as green
-            'r' as red
-            'c' as cyan
-            'm' as magenta
-            'y' as yellow
-            'k' as black
-            'w' as white
+            "comp" renders the image of the braid in a compact style
+            with crossings parallel to one another if possible. "ext",
+            for extended, shows the crossings in series.
+        linewidth : int (Default = 3)
+            Thickness of the strands in the figure.
+        gap_size : int (Default = 3)
+            Amount of space shown at crossings for undercrossing strands.
+        color : str
+            Multicolor strands defined by "rainbow". Single fixed colour
+            for all strands can be chosen from:
+                {'b': blue,
+                'g': green,
+                'r': red,
+                'c': cyan,
+                'm': magenta,
+                'y': yellow,
+                'k': black,
+                'w': white}
+
+        Notes
+        -----
+        abcd
+        
         """
         n = self.braid_group
         braid = self.braid_word
@@ -445,7 +634,7 @@ class Braid_Kernel(Braid):
         if color == "rainbow":
             for group in range(len(self.eq)):
                 for s in self.eq[group]:
-                    ax.plot(strands[s - 1][:, 0], strands[s - 1][:, 1], lw = linewidth, c = "C" + str(group))
+                    ax.plot(strands[s[0] - 1][:, 0], strands[s[0] - 1][:, 1], lw = linewidth, c = "C" + str(group))
         else:
             for s in range(n):
                 ax.plot(strands[s][:, 0], strands[s][:, 1], lw = linewidth, c = color)
@@ -467,7 +656,9 @@ if __name__ == "__main__":
 
     # new = Braid(5, 3, 2, 2, -4, -1, -1, -2, -3, -4)   
     new = Braid_Kernel(5, 1, 3, 2, 2, -4, -1, -1, -2, -3, -4)
-    new.draw()
+    # print(new.undercrossing_labels)
     # new.alexander_polynomial()
     new.alexander_data()
+
+    new.draw()
     # print(new)
