@@ -28,29 +28,29 @@ __all__ = [
 
 class Braid():
     """
-    Braid class object with internel starnd tracking and drawing
-    functionality.
-
-    Attributes
-    ----------
-    braid_group : int
-        The number of strands in the braid.
-    braid_word : list
-        Sequence of Artin operators that define the braid 
-        (Negative values indicate undercrossing strands).
-    
-    undercrossing_labels : list
-        List of underscrossing strands' labels for each 
-        Artin operation repectively.
-    
-    Notes
-    -----
-    abcd
+    Initialises the Braid class object, including calling
+    the internal tracking function to generate strand positions.
     """
     def __init__(self, n, *ops):
         """
-        Initialises the Braid class object, including calling
-        the internal tracking function to generate strand positions.
+        Braid class object with internel starnd tracking and drawing
+        functionality.
+
+        Attributes
+        ----------
+        braid_group : int
+            The number of strands in the braid.
+        braid_word : list
+            Sequence of Artin operators that define the braid 
+            (Negative values indicate undercrossing strands).
+        
+        undercrossing_labels : list
+            List of underscrossing strands' labels for each 
+            Artin operation repectively.
+        
+        Notes
+        -----
+        abcd
         """
         # Establish Group/No. of Strands
         self.braid_group = n
