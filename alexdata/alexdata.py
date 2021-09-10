@@ -492,8 +492,8 @@ class Braid_Kernel(Braid):
             U *= s**a
             V *= s**b
 
-        print("U: ", U)
-        print("V: ", V)
+        print("U = ", U)
+        print("V = ", V)
 
         # Subbing t for s^2.
         for i in det.free_symbols:
@@ -503,11 +503,32 @@ class Braid_Kernel(Braid):
                 det = det.subs(t, s**2)
         
         # PRINTS ALEX POLY with subbed si
-        # sp.pprint(det)
+        sp.pprint(det)
         # This works at leat for this specific det but the method is GREEDY.
         # sp.pprint(sp.collect(det, [x**2*y**2, x**2*y, x*y**2, x*y, x, y]))
 
-        return
+        # max power is (r + k - 1)
+        data = sp.zeros(r + k - 1)
+        for i in range(r + k - 1):
+            for j in range(r + k - 1):
+                print("\nRow:", (j + 1), "Col: ", (i + 1))
+                UV = U**(j + 1)*V**(i + 1)
+                sp.pprint(UV)
+                term = det.coeff(x**(i + 1)*y**(j + 1))
+                sp.pprint(term)
+                if term != 0:
+                    inpt = 0
+                    for t in sp.Add.make_args(term):
+                        inpt += t / UV
+                        sp.pprint(inpt.simplify())
+                data[j, i] = inpt
+
+
+        # sp.pprint(data.applyfunc(sp.simplify))
+                
+
+
+        return U, V
 
     def draw(self, style = "ext", linewidth = 3, gap_size = 5, color = "rainbow", save = False):
         """

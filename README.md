@@ -36,7 +36,7 @@ above requirements.
 Once the dependencies are accounted for you can install the library
 very simply using Pip:
 ```
-pip install git+https://github.com/RexGreenway/polylatlib
+pip install git+https://github.com/RexGreenway/alexanderdata
 ```
 To start using Alexander Data you can import the library as follows:
 ```
