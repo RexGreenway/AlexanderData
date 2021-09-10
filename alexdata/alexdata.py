@@ -511,23 +511,20 @@ class Braid_Kernel(Braid):
         data = sp.zeros(r + k - 1)
         for i in range(r + k - 1):
             for j in range(r + k - 1):
-                print("\nRow:", (j + 1), "Col: ", (i + 1))
+                # print("\nRow:", (j + 1), "Col: ", (i + 1))
                 UV = U**(j + 1)*V**(i + 1)
-                sp.pprint(UV)
+                # sp.pprint(UV)
                 term = det.coeff(x**(i + 1)*y**(j + 1))
-                sp.pprint(term)
+                # sp.pprint(term)
                 if term != 0:
                     inpt = 0
                     for t in sp.Add.make_args(term):
                         inpt += t / UV
-                        sp.pprint(inpt.simplify())
+                        # sp.pprint(inpt.simplify())
                 data[j, i] = inpt
-
 
         # sp.pprint(data.applyfunc(sp.simplify))
                 
-
-
         return U, V
 
     def draw(self, style = "ext", linewidth = 3, gap_size = 5, color = "rainbow", save = False):
